@@ -4,9 +4,20 @@ var ChooseRepositoryForm = React.createClass({
   render: function () {
     return (
       <div>
-        <RepositoryNameField repo={this.props.repo} />
+        <RepositoryNameField repo={this.props.repo} onUserInput={this.props.onUserInput} />
+        <RepositoryButton repo={this.props.repo} />
       </div>
 
+    )
+  }
+})
+
+var RepositoryButton = React.createClass({
+  render: function () {
+    return (
+      <div className='row'>
+        Nope {this.props.repo}
+      </div>
     )
   }
 })
@@ -14,8 +25,7 @@ var ChooseRepositoryForm = React.createClass({
 var RepositoryNameField = React.createClass({
   handleChange: function() {
     this.props.onUserInput(
-      this.refs.filterTextInput.value,
-      this.refs.inStockOnlyInput.checked
+      this.refs.repo.value
     );
   },
   render: function () {
