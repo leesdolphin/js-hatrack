@@ -1,4 +1,4 @@
-var path = require('path')
+const path = require('path')
 
 // const PATHS = {
 //   app: path.join(__dirname, 'app'),
@@ -18,7 +18,7 @@ var path = require('path')
 // };
 // node_modules/oauthio-web/dist/oauth.min.js
 
-var config = {
+const config = {
   entry: {
     'index': [path.resolve(__dirname, 'src/index.jsx')],
     'hatrack': [path.resolve(__dirname, 'src/lib/hatrack.js')]
@@ -34,6 +34,7 @@ var config = {
     {
       'oauth-web': 'umd oauth-web',
       'jquery': 'umd oauth-web',
+      'radium': 'umd radium',
       'react': 'umd react',
       'react-dom': 'umd react-dom'
     }

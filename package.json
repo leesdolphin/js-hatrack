@@ -40,10 +40,15 @@
     ],
     "settings": {
       "html/indent": "+2"
+    },
+    "rules": {
+      "no-var": 2,
+      "prefer-const": 2
     }
   },
   "dependencies": {
     "oauthio-web": "^0.5.0",
+    "radium": "^0.16.6",
     "react": "^0.14.7",
     "react-dom": "^0.14.7"
   }

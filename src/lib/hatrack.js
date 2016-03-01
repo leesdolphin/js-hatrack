@@ -1,5 +1,8 @@
+/* eslint no-var: 0 */
+/* eslint-env jquery */
+
 var linkRe = /<([^>]+)>; rel="(\w+)"/
-console.log("Hello World")
+
 function combine () {
   var arr = []
   Array.prototype.forEach.call(arguments, function (arg) {

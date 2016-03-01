@@ -35,12 +35,6 @@ footer {
 .intro-section {
   margin-bottom: 50px;
 }
-.intro-header {
-  background: no-repeat center center;
-  background-size: cover;
-  background-image: url('../img/header.png');
-  height: 300px;
-}
 
 .row {
   padding-top: 10px

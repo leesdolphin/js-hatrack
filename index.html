@@ -3,6 +3,7 @@
 <head>
   <meta charset='UTF-8'>
   <script>
+    /* eslint no-var: 0 */
     if (window.location.protocol !== 'https:' && window.location.port < 1024) {
       // Not secure - Redirect to the secure version.
       // Please just comment this out for your own development.
@@ -12,6 +13,7 @@
       })()
     }
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.34.2/es6-shim.min.js"></script>
   <script data-main="src/entry" src='https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.js' async></script>
   <link rel="stylesheet" href="css/normalize.css" />
   <link rel="stylesheet" href="css/skeleton.css" />

@@ -1,22 +1,30 @@
 import React from 'react'
 
-var ChooseRepositoryForm = React.createClass({
+const ChooseRepositoryForm = React.createClass({
+  propTypes: {
+    onUserInput: React.PropTypes.func.isRequired,
+    repo: React.PropTypes.string
+  },
   render: function () {
     return (
       <div>
-        <RepositoryNameField repo={this.props.repo} />
+        <RepositoryNameField
+          repo={this.props.repo}
+          onUserInput={this.props.onUserInput} />
       </div>
-
     )
   }
 })
 
-var RepositoryNameField = React.createClass({
-  handleChange: function() {
-    this.props.onUserInput(
-      this.refs.filterTextInput.value,
-      this.refs.inStockOnlyInput.checked
-    );
+const RepositoryNameField = React.createClass({
+  propTypes: {
+    onUserInput: React.PropTypes.func.isRequired,
+    repo: React.PropTypes.string
+  },
+  handleChange: function () {
+    this.props.onUserInput({
+      repo: this.refs.repo.value
+    })
   },
   render: function () {
     return (
@@ -24,7 +32,7 @@ var RepositoryNameField = React.createClass({
         <div className='twelve columns'>
           <label htmlFor='repo'>Repository</label>
           <input className='u-full-width'
-            name='repo'
+            ref='repo'
             defaultValue='LABHR/octohatrack'
             value={this.props.repo}
             onChange={this.handleChange}
