@@ -11,6 +11,17 @@ const ChooseRepositoryForm = React.createClass({
         <RepositoryNameField
           repo={this.props.repo}
           onUserInput={this.props.onUserInput} />
+        <RepositoryButton repo={this.props.repo} />
+      </div>
+    )
+  }
+})
+
+var RepositoryButton = React.createClass({
+  render: function () {
+    return (
+      <div className='row'>
+        Nope {this.props.repo}
       </div>
     )
   }
