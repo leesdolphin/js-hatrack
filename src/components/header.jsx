@@ -1,6 +1,9 @@
 import React from 'react'
 import Radium from 'radium'
 import { NavBar } from './navbar.jsx'
+import GoLink from '../../node_modules/react-icons/lib/go/link'
+import GoSearch from '../../node_modules/react-icons/lib/go/search'
+import GoSignOut from '../../node_modules/react-icons/lib/go/sign-out'
 
 const Header = Radium(React.createClass({
   propTypes: {
@@ -77,25 +80,29 @@ const HeaderNavBar = React.createClass({
     repo: React.PropTypes.string
   },
   render: function () {
+    const iconProps = {
+      width: '1.5em',
+      height: '1.5em',
+      style: {
+        verticalAlign: `-${0.1875 * 1.5}em`
+      }
+    }
     const items = {
       left: [
         {
-          octicon: 'search',
           disabled: true,
-          content: 'Build again'
+          content: <span><GoSearch {...iconProps} /> Build again</span>
         }
       ],
       right: [
         {
-          octicon: 'link',
-          disabled: false,
-          content: 'Permalink',
-          link: '#'
+          link: '#',
+          content: <span><GoLink {...iconProps} /> Permalink</span>
         },
         {
           octicon: 'sign-out',
           disabled: true,
-          content: 'Sign out'
+          content: <span><GoSignOut {...iconProps} /> Sign Out</span>
         }
       ]
     }
@@ -104,22 +111,7 @@ const HeaderNavBar = React.createClass({
     )
   }
 })
-// var x = (<div className='slim-icon-bar'>
-//   <div className='container'>
-//     <ul className='left-menu'>
-//       <NavMenuItem octicon='search' disabled>
-//         Build again
-//       </NavMenuItem>
-//     </ul>
-//     <ul className='right-menu'>
-//       <NavMenuItem octicon='link'>
-//         Permalink
-//       </NavMenuItem>
-//       <NavMenuItem octicon='sign-out' disabled>
-//         Sign out
-//       </NavMenuItem>
-//     </ul>
-//   </div>
-// </div>)
+const styles = {
+}
 
-module.exports = { Header, HeaderTitleBox, HeaderTitle, HeaderNavBar }
+export { Header, HeaderTitleBox, HeaderTitle, HeaderNavBar }

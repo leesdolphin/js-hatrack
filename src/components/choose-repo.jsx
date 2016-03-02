@@ -17,7 +17,7 @@ const ChooseRepositoryForm = React.createClass({
   }
 })
 
-var RepositoryButton = React.createClass({
+const RepositoryButton = React.createClass({
   render: function () {
     return (
       <div className='row'>

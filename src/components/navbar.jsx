@@ -15,14 +15,18 @@ const NavBar = Radium(React.createClass({
   },
   render () {
     const subbars = []
-    let hasPrev = false
+    let isFirstSubBar = true
     SUB_BAR_LOCATIONS.forEach((menuType) => {
       const menuItems = this.props.items[menuType]
       if (menuItems) {
         subbars.push(
-          <NavSubBar hasPrev={hasPrev} items={menuItems} type={menuType} key={menuType} />
+          <NavSubBar
+            isFirstSubBar={isFirstSubBar}
+            items={menuItems}
+            type={menuType}
+            key={menuType} />
         )
-        hasPrev = true
+        isFirstSubBar = false
       }
     })
     if (subbars) {
@@ -55,13 +59,15 @@ const NavBar = Radium(React.createClass({
 const NavSubBar = Radium(React.createClass({
   propTypes: {
     items: React.PropTypes.array,
-    hasPrev: React.PropTypes.bool,
+    isFirstSubBar: React.PropTypes.bool,
     type: React.PropTypes.string
   },
   render () {
     const navitems = []
+    let firstItem = this.props.isFirstSubBar
     this.props.items.forEach((navitem_data, idx) => {
-      navitems.push(<NavBarItem {...navitem_data} key={idx} />)
+      navitems.push(<NavBarItem {...navitem_data} isFirstItem={firstItem} key={idx} />)
+      firstItem = false
     })
     const barStyles = [
       styles.subBar.base,
@@ -72,50 +78,56 @@ const NavSubBar = Radium(React.createClass({
   }
 }))
 
-const NavBarItem = React.createClass({
+const NavBarItem = Radium(React.createClass({
   propTypes: {
     content: React.PropTypes.node,
     disabled: React.PropTypes.bool,
-    octicon: React.PropTypes.string,
+    isFirstItem: React.PropTypes.bool,
     link: React.PropTypes.string
   },
   render: function () {
-    let octicon = ''
-    if (this.props.octicon) {
-      const octiconClass = `octicon octicon-${this.props.octicon}`
-      octicon = (
-        <span className={octiconClass}></span>
+    const actionStyle = [
+      styles.action.base,
+      styles.action.disabled[this.props.disabled]
+    ]
+    const itemStyle = [
+      styles.item.base,
+      styles.item.firstItem[this.props.isFirstItem]
+    ]
+    let itemContent
+    if (this.props.link) {
+      itemContent = (
+        <a href={this.props.link} style={actionStyle}>
+          {this.props.content}
+        </a>
+      )
+    } else {
+      itemContent = (
+        <button disabled={this.props.disabled} style={actionStyle}>
+          {this.props.content}
+        </button>
       )
     }
     return (
-      <li>
-        <button disabled={this.props.disabled}>
-          {octicon}
-          {this.props.content}
-        </button>
-      </li>
+      <div style={itemStyle}>
+        {itemContent}
+      </div>
     )
   }
-})
+}))
 
 const styles = {
   iconBar: {
     display: 'block',
     borderTop: '1px solid #eee',
     borderBottom: '1px solid #eee',
-    marginBottom: '25px'
+    marginBottom: '2rem'
   },
   subBar: {
     base: {
-      listStyle: 'none',
-      marginBottom: 0
-    },
-    hasPrev: {
-      true: {
-
-      },
-      false: {
-
+      marginBottom: 0,
+      [media.phone]: {
+        borderRight: '1px solid #eee'
       }
     },
     type: {
@@ -124,6 +136,53 @@ const styles = {
       },
       right: {
         [media.phone]: { float: 'right' }
+      }
+    }
+  },
+  item: {
+    base: {
+      borderTop: '1px solid #eee',
+      margin: 0,
+      padding: 0,
+      display: 'block',
+      [media.phone]: {
+        borderTop: '0px',
+        borderLeft: '1px solid #eee',
+        display: 'inline-block'
+      }
+    },
+    firstItem: {
+      true: {
+        borderTop: '0px'
+      }
+    }
+  },
+  action: {
+    base: {
+      display: 'inline-block',
+      padding: '1rem',
+      margin: '0',
+      borderRadius: '0',
+      borderWidth: '0',
+      height: 'auto',
+      width: '100%',
+      color: '#555',
+      cursor: 'pointer',
+      textDecoration: 'none',
+      textAlign: 'center',
+      fontSize: '1.1rem',
+      fontWeight: '600',
+      lineHeight: '1',
+      letterSpacing: '.1rem',
+      textTransform: 'uppercase',
+      whiteSpace: 'nowrap',
+      backgroundColor: 'transparent',
+      boxSizing: 'border-box'
+    },
+    disabled: {
+      true: {
+        color: '#999',
+        cursor: 'inherit'
       }
     }
   }
