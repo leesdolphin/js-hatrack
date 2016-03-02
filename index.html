@@ -165,15 +165,17 @@
           return
         }
         if (contributors['codeContributors']) {
-          totalContributors += contributors['codeContributors'].length
           contributors['codeContributors'].forEach(function (contributor) {
-            addContributor(contributorToHtml(repo, contributor, 'code'))
+            if (addContributor(repo, contributor, 'code')) {
+              totalContributors++
+            }
           })
         }
-        if (contributors['nonCodeOnlyContributors']) {
-          totalContributors += contributors['nonCodeOnlyContributors'].length
-          contributors['nonCodeOnlyContributors'].forEach(function (contributor) {
-            addContributor(contributorToHtml(repo, contributor, 'non-code'))
+        if (contributors['nonCodeContributors']) {
+          contributors['nonCodeContributors'].forEach(function (contributor) {
+            if (addContributor(repo, contributor, 'non-code')) {
+              totalContributors++
+            }
           })
         }
         $('#contributor-count').text(totalContributors + ' ')
@@ -211,7 +213,23 @@
       })
     }
 
-    function addContributor (codeHtml) {
+    function addContributor (project, contributor, type) {
+      var username = contributor['login']
+      if (document.getElementById('gh-user-' + username)) {
+        var elm = $(document.getElementById('gh-user-' + username))
+        elm.data(type, true)
+        // Already exists in the DOM. Update the class and return.
+        // We assume that nothing has changed except the `type`.
+        if (elm.data('code')) {
+          $('#gh-user-' + username).attr('class', 'code')
+        } else if (elm.data('non-code')) {
+          $('#gh-user-' + username).attr('class', 'non-code')
+        } else {
+          $('#gh-user-' + username).attr('class', type)
+        }
+        return false
+      }
+      var codeHtml = contributorToHtml(project, contributor, type)
       var children = $('#contributors').children()
       if (children.length === 0) {
         // No children so just.
@@ -226,6 +244,7 @@
           $(children[random_index]).before(codeHtml)
         }
       }
+      return true
     }
     function contributorToHtml (project, contributor, type) {
       var username = contributor['login']
@@ -234,7 +253,8 @@
       var avatar = contributor['avatar_url'] + '&s=128'
 
       // Construct the contibutor's HTML using jQuery.
-      var surounding_div = $('<div>').attr('class', type).attr('id', username)
+      var surounding_div = $('<div>').attr('class', type).attr('id', 'gh-user-' + username)
+      surounding_div.data(type, true)
       var linkTag = $('<a>').attr('href', url)
       var avatarImg = $('<img width="128">').attr('src', avatar).attr('alt', username)
       var overlay = $('<div class="overlay">')

@@ -11,8 +11,8 @@ TODO
 ----
 
  - [ ] Handle errors in some graceful way.
- - [ ] Be able to display data whilst it is loading.
- - [ ] Download issue information faster. Specifically once a single issue page is downloaded, start
+ - [x] Be able to display data whilst it is loading.
+ - [x] Download issue information faster. Specifically once a single issue page is downloaded, start
         downloading the comment lists.
  - [ ] Remove all direct dependancies on jQuery, simply rely on 1 or 2 externally defined functions to
         allow the implementer to choose their own libraries.
