@@ -6,7 +6,7 @@
     if (window.location.protocol !== 'https:' && window.location.port < 1024) {
       // Not secure - Redirect to the secure version.
       // Please just comment this out for your own development.
-      (function() {
+      (function () {
         var newLocation = (window.location + '').substring(window.location.protocol.length)
         window.location.replace('https:' + newLocation)
       })()
@@ -21,7 +21,8 @@
   <script src='lib/index.js'></script>
   <script src='lib/other/oauth.js'></script>
   <script>
-  OAuth.initialize('KUhN5ym8PYgEIgAy1hli3zBNN-g')
+    /* globals OAuth */
+    OAuth.initialize('KUhN5ym8PYgEIgAy1hli3zBNN-g')
   </script>
   <title>Let's Build a Hat Rack</title>
 </head>
@@ -104,35 +105,40 @@
   <script>
     /* eslint-env jquery */
 
-    window.cancelExec = null;
-    function bootstrapHatRack () {
+    window.cancelExec = null
 
+    function showError (errorName, extraInfo) {
+      window.alert('Error: ' + errorName)
+    }
+
+    function bootstrapHatRack () {
       var oauth = requestOauth(true)
       if (!oauth) {
-        throw Error("Missing OAuth")
+        throw Error('Missing OAuth')
       }
       if (!window.history.state) {
-        throw Error("Missing state")
+        throw Error('Missing state')
       }
       var repo = window.history.state['repo']
       if (!repo) {
-        throw Error("Missing repo")
+        throw Error('Missing repo')
       }
 
       var removeProgressSpinners = createSpinners($('.progress').empty())
       $('#repo-name').html(' for <a href="https://github.com/' + repo + '">' + repo + '</a>')
 
-      var shouldAbort = false;
-      var rejected = $.Deferred().reject(Error("Aborted")).promise()
-      function cancelExecution() {
-        shouldAbort = true;
+      var shouldAbort = false
+      var canceledError = Error('Aborted')
+      var rejected = $.Deferred().reject(canceledError).promise()
+      function cancelExecution () {
+        shouldAbort = true
         removeProgressSpinners()
       }
       cancelExecution.repo = repo
       window.cancelExec = cancelExecution
 
       var cache = {}
-      var totalRequests = 0;
+      var totalRequests = 0
       function cachedRequest (url) {
         if (shouldAbort) {
           return rejected
@@ -141,11 +147,11 @@
           return cache[url]
         } else {
           var response = cache[url] = oauth.get(url)
-          return response.then(function() {
+          return response.then(function () {
             if (shouldAbort) {
               return rejected
             } else {
-              totalRequests++;
+              totalRequests++
               $('#request-information').text('(in ' + totalRequests + ' requests)')
               return response
             }
@@ -153,7 +159,7 @@
         }
       }
       var hatRack = window.Labhr('https://api.github.com', cachedRequest)
-      var totalContributors = 0;
+      var totalContributors = 0
       hatRack.load(repo, function (contributors) {
         if (shouldAbort) {
           return
@@ -174,6 +180,34 @@
       }).then(function () {
         // All loading is complete
         removeProgressSpinners()
+      }).fail(function (err) {
+        if (err === canceledError) {
+          // We're trying to cancel. Ignore the error.
+          return
+        } else if (err.status) {
+          console.log('Ajax request failed', err.status, err.statusText, err.responseText)
+          // JQuery's XHR has failed. We can check the status code to be more sure about the error.
+          if (err.status === 404) {
+            // Oops, repo not found.
+            return showError('repoNotFound')
+          } else if (err.status === 403) {
+            // Permissions or rate limit issues.
+            if (err.getResponseHeader('X-RateLimit-Remaining') === 0) {
+              return showError('rateLimit')
+            } else {
+              return showError('forbidden')
+            }
+          } else if (err.status === 401) {
+            // Auth key failed.
+            signOut()
+            return showError('authFailed')
+          } else {
+            return showError('unknown')
+          }
+        } else {
+          console.log('Unknown ... is this a bug?', arguments)
+          return showError('unknown')
+        }
       })
     }
 
@@ -200,12 +234,12 @@
       var avatar = contributor['avatar_url'] + '&s=128'
 
       // Construct the contibutor's HTML using jQuery.
-      var surounding_div = $('<div class="' + type + '">')
-      var linkTag = $('<a href="' + url + '"></a>')
-      var avatarImg = $('<img src="' + avatar + '" width="128" alt="' + username + '">')
-      var overlay = $('<div class="overlay"></div>')
+      var surounding_div = $('<div>').attr('class', type).attr('id', username)
+      var linkTag = $('<a>').attr('href', url)
+      var avatarImg = $('<img width="128">').attr('src', avatar).attr('alt', username)
+      var overlay = $('<div class="overlay">')
       linkTag.append(avatarImg, overlay)
-      var displayName = $('<div>' + userDisplayName + '</div>')
+      var displayName = $('<div>').text(userDisplayName)
 
       return surounding_div.append(linkTag, displayName)
     }
@@ -235,14 +269,14 @@
     }
 
     function validateRepo (repo) {
-      // Really dubm. Basically 1 slash with at least 1 non-slash either side.
+      // Really dumb. Basically 1 slash with at least 1 non-slash either side.
       return /[^\/#]+\/[^\/#]+/.test(repo)
     }
 
-    function loadLocation() {
+    function loadLocation () {
       if (window.history.state) {
         // We have something in the state object. So we can just use that.
-        console.log("We have state already. Handle it.")
+        console.log('We have state already. Handle it.')
         setLocation(window.history.state['repo'])
         return
       }
@@ -264,7 +298,7 @@
     }
 
     function setLocation (repo, replace) {
-      console.log("Setting location", repo, " - Replacing?", !!replace)
+      console.log('Setting location', repo, ' - Replacing?', !!replace)
       var noLocationChange = window.history.state && window.history.state['repo'] === repo
       function stateChange (state, title, url) {
         if (replace || noLocationChange) {
@@ -281,26 +315,17 @@
       }
       _setRepo()
     }
-    function _setRepo() {
-      if (!window.history.state) {
-        var repo = null;
-      } else {
-        var repo = window.history.state['repo']
+    function _setRepo () {
+      var repo = null
+      if (window.history.state) {
+        repo = window.history.state['repo']
       }
 
       var oauth_credentials = requestOauth(true)
-      console.log("Setting the repo? -", repo, "Got creds?", oauth_credentials, !!oauth_credentials)
-      if (!repo) {
-        if (window.cancelExec) {
-          window.cancelExec()
-          window.cancelExec = null
-        }
-        $('#contributors').empty()
-        $('#contributor-count').empty()
-        $('#request-information').empty()
-        $('#repo-name').empty()
-      } else {
-        $('input[name="repo"]').val(repo)
+      console.log('Setting the repo? -', repo, 'Got creds?', oauth_credentials, !!oauth_credentials)
+      if (window.cancelExec) {
+        window.cancelExec()
+        window.cancelExec = null
       }
       // Use '!!' to coerce to a boolean
       var showContrib = !!(repo && oauth_credentials)
@@ -315,24 +340,29 @@
           // We're clear to start another hat rack.
           bootstrapHatRack()
         }
+      } else {
+        $('#contributors').empty()
+        $('#contributor-count').empty()
+        $('#request-information').empty()
+        $('#repo-name').empty()
       }
       $('.invalid').removeClass('invalid')
       $('#initial-form').toggle(!showContrib)
       $('#all-contributors').toggle(showContrib)
-      $('input[name="repo"]').prop('disabled', showContrib)
+      $('input[name="repo"]').val(repo).prop('disabled', showContrib)
       $('#github-oauth').prop('disabled', showContrib)
       $('#search-again button').prop('disabled', !showContrib)
       $('#permalink a').prop('href', window.location.href)
     }
 
-    function requestOauth(immediate) {
-      var oauth = OAuth.create('github');
+    function requestOauth (immediate) {
+      var oauth = OAuth.create('github')
       // If we have oauth, then enable the signout button.
       $('#signout button').prop('disabled', !oauth)
       if (immediate) {
         return oauth
       } else if (oauth) {
-        return $.Deferred().resolve(oauth).promise();
+        return $.Deferred().resolve(oauth).promise()
       }
       return OAuth.popup('github', {cache: true}).done(function (githubApi) {
         $('#signout button').prop('disabled', false)
@@ -340,30 +370,34 @@
         return githubApi
       }).fail(function (err) {
         console.log(err)
-        button.addClass('invalid')
+        $('button#github-oauth').addClass('invalid')
+      }).always(function () {
+        $('button#github-oauth').prop('disabled', false)
       })
     }
-
-    $(document).ready(function() {
+    function signOut () {
+      $('#signout button').prop('disabled', true)
+      OAuth.clearCache()
+      if (window.cancelExec) {
+        // Currently loading a different repo's things.
+        window.cancelExec()
+        window.cancelExec = null
+      }
+      _setRepo()
+    }
+    $(document).ready(function () {
       requestOauth(true)  // Update the signout button.
       loadLocation()
       $(window).on('popstate', _setRepo)
       $('#signout button').click(function (event) {
         event.preventDefault()
-        $(this).prop('disabled', true)
-        OAuth.clearCache();
-        if (window.cancelExec) {
-          // Currently loading a different repo's things.
-          window.cancelExec()
-          window.cancelExec = null
-        }
-        _setRepo();
+        signOut()
       })
       $('#search-again button').click(function (event) {
         event.preventDefault()
         setLocation(null)
       })
-      $('#permalink a').click(function(event) {
+      $('#permalink a').click(function (event) {
         // event.preventDefault()
       })
       $('button#github-oauth').click(function (event) {
@@ -376,9 +410,9 @@
           return
         }
         $('input[name="repo"]').prop('disabled', true)
-        var button = $(this).prop('disabled', true)
+        $('button#github-oauth').prop('disabled', true)
         var cancelSpinners = createSpinners(this)
-        requestOauth().then(function() {
+        requestOauth().then(function () {
           setLocation(repo)
         }).always(cancelSpinners)
       })
